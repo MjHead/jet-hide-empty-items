@@ -9,7 +9,12 @@
 		var $elAccodion = $( '.elementor-accordion-item' );
 		var $elTabs = $( '.elementor-tab-title.elementor-tab-desktop-title' );
 		var maybeHideElement = function( $el, $content ) {
-			var text = $content.text();
+			var text = $content.text(),
+				template = $( '.elementor', $content );
+
+			if( template[0] ) {
+				return false;
+			}
 
 			text = text.replace( /\t/g, '' );
 			text = text.replace( /\r?\n|\r/g, '' );
