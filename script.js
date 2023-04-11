@@ -11,7 +11,7 @@
 		var maybeHideElement = function( $el, $content ) {
 			var text = $content.text();
 
-			text = text.replace( /\t/g, '' );
+			text = text.replace( /\t|\s/g, '' );
 			text = text.replace( /\r?\n|\r/g, '' );
 
 			if ( ! text ) {
