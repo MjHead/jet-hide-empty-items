@@ -20,8 +20,7 @@
 			} else if ( $content.find( '.jet-listing-not-found' ).length ) {
 				$el.css( 'display', 'none' );
 				return true;
-			}
-
+			} 
 			return false;
 		};
 
@@ -54,12 +53,15 @@
 
 		if ( $jetTabs.length ) {
 
+			let jetTabsСount = 0;
+			
 			$jetTabs.each( function( index, el ) {
 				var $el = $( el ),
 					$tabs = $el.closest( '.jet-tabs' ),
 					$content = $tabs.find( '.jet-tabs__content[data-tab="' + $el.data( 'tab' ) + '"]' );
 
 				if ( maybeHideElement( $el, $content ) ) {
+					jetTabsСount++;
 					if ( $el.hasClass( 'active-tab' ) ) {
 						var $next = $el.next();
 						if ( $next.length ) {
@@ -91,6 +93,10 @@
 							$contentWrapper.css( { 'height': activeContentHeight } );
 						}
 					}
+				}
+
+				if ( jetTabsСount === $jetTabs.length ){
+					$jetTabs.parents( '.jet-tabs' ).css( 'display', 'none' );
 				}
 
 			} );
