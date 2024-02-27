@@ -25,10 +25,22 @@
 		};
 
 		if ( $jetAccodion.length ) {
-			$jetAccodion.each( function( index, el ) {
-				var $el = $( el ),
+			$('.elementor-widget-jet-accordion').each( function( index, scope ) {
+
+				let $scope = $( scope );
+				let jetAccordionСount = 0;
+				let jetAccordionItems = $scope.find( $jetAccodion );
+
+				jetAccordionItems.each( function( index, el ) {
+					var $el = $( el ),
 					$content = $el.find( '.jet-toggle__content' );
-				maybeHideElement( $el, $content );
+					if ( maybeHideElement( $el, $content ) ) {
+						jetAccordionСount++;
+					}
+				} );
+				if ( jetAccordionСount === jetAccordionItems.length ){
+					jetAccordionItems.parents( '.jet-accordion' ).css( 'display', 'none' );
+				}
 			} );
 		}
 
@@ -52,54 +64,56 @@
 		}
 
 		if ( $jetTabs.length ) {
+			$('.elementor-widget-jet-tabs').each( function( index, scope ) {
 
-			let jetTabsСount = 0;
-			
-			$jetTabs.each( function( index, el ) {
-				var $el = $( el ),
-					$tabs = $el.closest( '.jet-tabs' ),
-					$content = $tabs.find( '.jet-tabs__content[data-tab="' + $el.data( 'tab' ) + '"]' );
+				let $scope = $( scope );
+				let jetTabsСount = 0;
+				let jetTabsItems = $scope.find( $jetTabs );
 
-				if ( maybeHideElement( $el, $content ) ) {
-					jetTabsСount++;
-					if ( $el.hasClass( 'active-tab' ) ) {
-						var $next = $el.next();
-						if ( $next.length ) {
+				jetTabsItems.each( function( index, el ) {
+					var $el = $( el ),
+						$tabs = $el.closest( '.jet-tabs' ),
+						$content = $tabs.find( '.jet-tabs__content[data-tab="' + $el.data( 'tab' ) + '"]' );
 
-							var $controlList = $tabs.find( '.jet-tabs__control' ),
-								$contentWrapper = $tabs.find( '.jet-tabs__content-wrapper' ),
-								$contentList = $tabs.find( '.jet-tabs__content' ),
-								curentIndex = $next.data( 'tab' ),
-								$activeControl = $tabs.find( '.jet-tabs__control[data-tab="' + curentIndex + '"]' ),
-								$activeContent = $tabs.find( '.jet-tabs__content[data-tab="' + curentIndex + '"]' ),
-								activeContentHeight = 'auto';
+					if ( maybeHideElement( $el, $content ) ) {
+						jetTabsСount++;
+						if ( $el.hasClass( 'active-tab' ) ) {
+							var $next = $el.next();
+							if ( $next.length ) {
 
-							$contentWrapper.css( { 'height': $contentWrapper.outerHeight( true ) } );
+								var $controlList = $tabs.find( '.jet-tabs__control' ),
+									$contentWrapper = $tabs.find( '.jet-tabs__content-wrapper' ),
+									$contentList = $tabs.find( '.jet-tabs__content' ),
+									curentIndex = $next.data( 'tab' ),
+									$activeControl = $tabs.find( '.jet-tabs__control[data-tab="' + curentIndex + '"]' ),
+									$activeContent = $tabs.find( '.jet-tabs__content[data-tab="' + curentIndex + '"]' ),
+									activeContentHeight = 'auto';
 
-							$controlList.removeClass( 'active-tab' );
-							$activeControl.addClass( 'active-tab' );
+								$contentWrapper.css( { 'height': $contentWrapper.outerHeight( true ) } );
 
-							$controlList.attr( 'aria-expanded', 'false' );
-							$activeControl.attr( 'aria-expanded', 'true' );
+								$controlList.removeClass( 'active-tab' );
+								$activeControl.addClass( 'active-tab' );
 
-							$contentList.removeClass( 'active-content' );
-							activeContentHeight = $activeContent.outerHeight( true );
-							activeContentHeight += parseInt( $contentWrapper.css( 'border-top-width' ), 10 ) + parseInt( $contentWrapper.css( 'border-bottom-width' ), 10 );
-							$activeContent.addClass( 'active-content' );
+								$controlList.attr( 'aria-expanded', 'false' );
+								$activeControl.attr( 'aria-expanded', 'true' );
 
-							$contentList.attr( 'aria-hidden', 'true' );
-							$activeContent.attr( 'aria-hidden', 'false' );
+								$contentList.removeClass( 'active-content' );
+								activeContentHeight = $activeContent.outerHeight( true );
+								activeContentHeight += parseInt( $contentWrapper.css( 'border-top-width' ), 10 ) + parseInt( $contentWrapper.css( 'border-bottom-width' ), 10 );
+								$activeContent.addClass( 'active-content' );
 
-							$contentWrapper.css( { 'height': activeContentHeight } );
+								$contentList.attr( 'aria-hidden', 'true' );
+								$activeContent.attr( 'aria-hidden', 'false' );
+
+								$contentWrapper.css( { 'height': activeContentHeight } );
+							}
 						}
 					}
+				} );
+				if ( jetTabsСount === jetTabsItems.length ){
+					jetTabsItems.parents( '.jet-tabs' ).css( 'display', 'none' );
 				}
-
-				if ( jetTabsСount === $jetTabs.length ){
-					$jetTabs.parents( '.jet-tabs' ).css( 'display', 'none' );
-				}
-
-			} );
+			});
 		}
 
 		if ( $elTabs.length ) {
