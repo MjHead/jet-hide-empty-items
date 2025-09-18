@@ -7,7 +7,7 @@
 		var $jetAccodion = $( '.jet-accordion__item' );
 		var $jetTabs = $( '.jet-tabs__control' );
 		var $elAccodion = $( '.elementor-accordion-item' );
-		var $elTabs = $( '.elementor-tab-title.elementor-tab-desktop-title' );
+		var $elTabs = $( '.elementor-tab-title.elementor-tab-desktop-title, .e-n-tab-title' );
 		var maybeHideElement = function( $el, $content ) {
 			var text = $content.text();
 
@@ -119,9 +119,25 @@
 		if ( $elTabs.length ) {
 
 			$elTabs.each( function( index, el ) {
-				var $el = $( el ),
-					$tabs = $el.closest( '.elementor-tabs' ),
-					$content = $tabs.find( '.elementor-tab-content[data-tab="' + $el.data( 'tab' ) + '"]' );
+				var $el      = $( el );
+				var $tabs    = $el.closest( '.elementor-tabs, .e-n-tabs' );
+				var panelId  = $el.attr( 'aria-controls' ) || $el.attr( 'controls' );
+				var $content = panelId ? $( '#' + panelId ) : $();
+
+				if ( ! $content.length ) {
+					var tabId = $el.data( 'tab' ) || $el.attr( 'data-tab-index' );
+					if ( tabId ) {
+						$content = $tabs.find(
+							'.elementor-tab-content[data-tab="' + tabId + '"], ' +
+							'.e-n-tab-content[data-tab="' + tabId + '"], ' +
+							'.e-n-tab-content[data-tab-index="' + tabId + '"]'
+						);
+					}
+				}
+
+				if ( ! $content.length ) {
+					return;
+				}
 
 				maybeHideElement( $el, $content );
 
