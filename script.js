@@ -8,6 +8,7 @@
 		var $jetTabs = $( '.jet-tabs__control' );
 		var $elAccodion = $( '.elementor-accordion-item' );
 		var $elTabs = $( '.elementor-tab-title.elementor-tab-desktop-title, .e-n-tab-title' );
+
 		var maybeHideElement = function( $el, $content ) {
 			var text = $content.text();
 
@@ -20,37 +21,42 @@
 			} else if ( $content.find( '.jet-listing-not-found' ).length ) {
 				$el.css( 'display', 'none' );
 				return true;
-			} 
+			}
+
 			return false;
 		};
 
 		if ( $jetAccodion.length ) {
-			$('.elementor-widget-jet-accordion').each( function( index, scope ) {
+			$( '.elementor-widget-jet-accordion' ).each( function( index, scope ) {
 
 				let $scope = $( scope );
-				let jetAccordionСount = 0;
+				let jetAccordionCount = 0;
 				let jetAccordionItems = $scope.find( $jetAccodion );
 
 				jetAccordionItems.each( function( index, el ) {
 					var $el = $( el ),
-					$content = $el.find( '.jet-toggle__content' );
+					    $content = $el.find( '.jet-toggle__content' );
+
 					if ( maybeHideElement( $el, $content ) ) {
-						jetAccordionСount++;
+						jetAccordionCount++;
 					}
 				} );
-				if ( jetAccordionСount === jetAccordionItems.length ){
+
+				if ( jetAccordionCount === jetAccordionItems.length ) {
 					jetAccordionItems.parents( '.jet-accordion' ).css( 'display', 'none' );
 				}
+
+				$scope.addClass( 'jet-hide-empty-ready' );
 			} );
 		}
 
 		if ( $elAccodion.length ) {
 			$elAccodion.each( function( index, el ) {
 				var $el = $( el ),
-					$content = $el.find( '.elementor-tab-content' );
+				    $content = $el.find( '.elementor-tab-content' ),
+				    $widget = $el.closest( '.elementor-widget-accordion' );
 
 				if ( ! maybeHideElement( $el, $content ) ) {
-
 					var $prev = $el.prev();
 					var borderTop = $el.css( 'border-top' );
 					var borderBottom = $el.css( 'border-bottom' );
@@ -60,34 +66,38 @@
 					}
 				}
 
+				if ( $widget.length ) {
+					$widget.addClass( 'jet-hide-empty-ready' );
+				}
 			} );
 		}
 
 		if ( $jetTabs.length ) {
-			$('.elementor-widget-jet-tabs').each( function( index, scope ) {
+			$( '.elementor-widget-jet-tabs' ).each( function( index, scope ) {
 
 				let $scope = $( scope );
-				let jetTabsСount = 0;
+				let jetTabsCount = 0;
 				let jetTabsItems = $scope.find( $jetTabs );
 
 				jetTabsItems.each( function( index, el ) {
 					var $el = $( el ),
-						$tabs = $el.closest( '.jet-tabs' ),
-						$content = $tabs.find( '.jet-tabs__content[data-tab="' + $el.data( 'tab' ) + '"]' );
+					    $tabs = $el.closest( '.jet-tabs' ),
+					    $content = $tabs.find( '.jet-tabs__content[data-tab="' + $el.data( 'tab' ) + '"]' );
 
 					if ( maybeHideElement( $el, $content ) ) {
-						jetTabsСount++;
+						jetTabsCount++;
+
 						if ( $el.hasClass( 'active-tab' ) ) {
 							var $next = $el.next();
-							if ( $next.length ) {
 
+							if ( $next.length ) {
 								var $controlList = $tabs.find( '.jet-tabs__control' ),
-									$contentWrapper = $tabs.find( '.jet-tabs__content-wrapper' ),
-									$contentList = $tabs.find( '.jet-tabs__content' ),
-									curentIndex = $next.data( 'tab' ),
-									$activeControl = $tabs.find( '.jet-tabs__control[data-tab="' + curentIndex + '"]' ),
-									$activeContent = $tabs.find( '.jet-tabs__content[data-tab="' + curentIndex + '"]' ),
-									activeContentHeight = 'auto';
+								    $contentWrapper = $tabs.find( '.jet-tabs__content-wrapper' ),
+								    $contentList = $tabs.find( '.jet-tabs__content' ),
+								    currentIndex = $next.data( 'tab' ),
+								    $activeControl = $tabs.find( '.jet-tabs__control[data-tab="' + currentIndex + '"]' ),
+								    $activeContent = $tabs.find( '.jet-tabs__content[data-tab="' + currentIndex + '"]' ),
+								    activeContentHeight = 'auto';
 
 								$contentWrapper.css( { 'height': $contentWrapper.outerHeight( true ) } );
 
@@ -110,22 +120,25 @@
 						}
 					}
 				} );
-				if ( jetTabsСount === jetTabsItems.length ){
+
+				if ( jetTabsCount === jetTabsItems.length ) {
 					jetTabsItems.parents( '.jet-tabs' ).css( 'display', 'none' );
 				}
-			});
+
+				$scope.addClass( 'jet-hide-empty-ready' );
+			} );
 		}
 
 		if ( $elTabs.length ) {
-
 			$elTabs.each( function( index, el ) {
-				var $el      = $( el );
-				var $tabs    = $el.closest( '.elementor-tabs, .e-n-tabs' );
-				var panelId  = $el.attr( 'aria-controls' ) || $el.attr( 'controls' );
+				var $el = $( el );
+				var $tabs = $el.closest( '.elementor-tabs, .e-n-tabs' );
+				var panelId = $el.attr( 'aria-controls' ) || $el.attr( 'controls' );
 				var $content = panelId ? $( '#' + panelId ) : $();
 
 				if ( ! $content.length ) {
 					var tabId = $el.data( 'tab' ) || $el.attr( 'data-tab-index' );
+
 					if ( tabId ) {
 						$content = $tabs.find(
 							'.elementor-tab-content[data-tab="' + tabId + '"], ' +
@@ -141,9 +154,17 @@
 
 				maybeHideElement( $el, $content );
 
+				var $widget = $el.closest( '.elementor-widget-tabs, .elementor-widget-n-tabs' );
+
+				if ( $widget.length ) {
+					$widget.addClass( 'jet-hide-empty-ready' );
+				}
 			} );
 		}
 
+		requestAnimationFrame( function() {
+			document.documentElement.classList.remove( 'jet-hide-empty-pending' );
+		} );
 	};
 
 	$( window ).on( 'elementor/frontend/init', hideHandler );
