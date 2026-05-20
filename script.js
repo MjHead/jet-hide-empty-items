@@ -76,6 +76,13 @@
 			$( '.elementor-widget-jet-tabs' ).each( function( index, scope ) {
 
 				let $scope = $( scope );
+				let $instance = $scope.find( '.jet-tabs' ).first();
+
+				if ( $instance.is( '[data-hide-empty-skip="true"]' ) ) {
+					$scope.addClass( 'jet-hide-empty-ready' );
+					return;
+				}
+
 				let jetTabsCount = 0;
 				let jetTabsItems = $scope.find( $jetTabs );
 
