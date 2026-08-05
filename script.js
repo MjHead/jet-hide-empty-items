@@ -8,19 +8,39 @@
 		var $jetTabs = $( '.jet-tabs__control' );
 		var $elAccodion = $( '.elementor-accordion-item' );
 		var $elTabs = $( '.elementor-tab-title.elementor-tab-desktop-title, .e-n-tab-title' );
+
 		var maybeHideElement = function( $el, $content ) {
 			var text = $content.text();
+			var hasExternalEmbed = $content.find(
+				'.remix-app[data-hash], ' +
+				'script[src], ' +
+				'iframe[src], ' +
+				'embed[src], ' +
+				'object[data]'
+			).length > 0;
 
-			text = text.replace( /\t|\s/g, '' );
-			text = text.replace( /\r?\n|\r/g, '' );
+			text = text.replace( /\s/g, '' );
 
-			if ( ! text ) {
+			/*
+			 * A listing with no results should still be treated as empty,
+			 * even if its wrapper contains other technical elements.
+			 */
+			if ( $content.find( '.jet-listing-not-found' ).length ) {
 				$el.css( 'display', 'none' );
+
 				return true;
-			} else if ( $content.find( '.jet-listing-not-found' ).length ) {
+			}
+
+			/*
+			 * External embeds may not contain visible text before their
+			 * asynchronous scripts finish rendering the content.
+			 */
+			if ( ! text && ! hasExternalEmbed ) {
 				$el.css( 'display', 'none' );
+
 				return true;
-			} 
+			}
+
 			return false;
 		};
 
@@ -33,24 +53,28 @@
 
 				jetAccordionItems.each( function( index, el ) {
 					var $el = $( el ),
-					$content = $el.find( '.jet-toggle__content' );
+						$content = $el.find( '.jet-toggle__content' );
+
 					if ( maybeHideElement( $el, $content ) ) {
 						jetAccordionСount++;
 					}
 				} );
-				if ( jetAccordionСount === jetAccordionItems.length ){
+
+				if ( jetAccordionСount === jetAccordionItems.length ) {
 					jetAccordionItems.parents( '.jet-accordion' ).css( 'display', 'none' );
 				}
+
+				$scope.addClass( 'jet-hide-empty-ready' );
 			} );
 		}
 
 		if ( $elAccodion.length ) {
 			$elAccodion.each( function( index, el ) {
 				var $el = $( el ),
-					$content = $el.find( '.elementor-tab-content' );
+					$content = $el.find( '.elementor-tab-content' ),
+					$widget = $el.closest( '.elementor-widget-accordion' );
 
 				if ( ! maybeHideElement( $el, $content ) ) {
-
 					var $prev = $el.prev();
 					var borderTop = $el.css( 'border-top' );
 					var borderBottom = $el.css( 'border-bottom' );
@@ -60,6 +84,9 @@
 					}
 				}
 
+				if ( $widget.length ) {
+					$widget.addClass( 'jet-hide-empty-ready' );
+				}
 			} );
 		}
 
@@ -67,6 +94,13 @@
 			$('.elementor-widget-jet-tabs').each( function( index, scope ) {
 
 				let $scope = $( scope );
+				let $instance = $scope.find( '.jet-tabs' ).first();
+
+				if ( $instance.is( '[data-hide-empty-skip="true"]' ) ) {
+					$scope.addClass( 'jet-hide-empty-ready' );
+					return;
+				}
+
 				let jetTabsСount = 0;
 				let jetTabsItems = $scope.find( $jetTabs );
 
@@ -77,16 +111,17 @@
 
 					if ( maybeHideElement( $el, $content ) ) {
 						jetTabsСount++;
+
 						if ( $el.hasClass( 'active-tab' ) ) {
 							var $next = $el.next();
-							if ( $next.length ) {
 
+							if ( $next.length ) {
 								var $controlList = $tabs.find( '.jet-tabs__control' ),
 									$contentWrapper = $tabs.find( '.jet-tabs__content-wrapper' ),
 									$contentList = $tabs.find( '.jet-tabs__content' ),
-									curentIndex = $next.data( 'tab' ),
-									$activeControl = $tabs.find( '.jet-tabs__control[data-tab="' + curentIndex + '"]' ),
-									$activeContent = $tabs.find( '.jet-tabs__content[data-tab="' + curentIndex + '"]' ),
+									currentIndex = $next.data( 'tab' ),
+									$activeControl = $tabs.find( '.jet-tabs__control[data-tab="' + currentIndex + '"]' ),
+									$activeContent = $tabs.find( '.jet-tabs__content[data-tab="' + currentIndex + '"]' ),
 									activeContentHeight = 'auto';
 
 								$contentWrapper.css( { 'height': $contentWrapper.outerHeight( true ) } );
@@ -110,14 +145,16 @@
 						}
 					}
 				} );
-				if ( jetTabsСount === jetTabsItems.length ){
+
+				if ( jetTabsСount === jetTabsItems.length ) {
 					jetTabsItems.parents( '.jet-tabs' ).css( 'display', 'none' );
 				}
-			});
+
+				$scope.addClass( 'jet-hide-empty-ready' );
+			} );
 		}
 
 		if ( $elTabs.length ) {
-
 			$elTabs.each( function( index, el ) {
 				var $el      = $( el );
 				var $tabs    = $el.closest( '.elementor-tabs, .e-n-tabs' );
@@ -126,6 +163,7 @@
 
 				if ( ! $content.length ) {
 					var tabId = $el.data( 'tab' ) || $el.attr( 'data-tab-index' );
+
 					if ( tabId ) {
 						$content = $tabs.find(
 							'.elementor-tab-content[data-tab="' + tabId + '"], ' +
@@ -141,9 +179,17 @@
 
 				maybeHideElement( $el, $content );
 
+				var $widget = $el.closest( '.elementor-widget-tabs, .elementor-widget-n-tabs' );
+
+				if ( $widget.length ) {
+					$widget.addClass( 'jet-hide-empty-ready' );
+				}
 			} );
 		}
 
+		requestAnimationFrame( function() {
+			document.documentElement.classList.remove( 'jet-hide-empty-pending' );
+		} );
 	};
 
 	$( window ).on( 'elementor/frontend/init', hideHandler );
