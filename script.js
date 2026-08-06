@@ -11,15 +11,33 @@
 
 		var maybeHideElement = function( $el, $content ) {
 			var text = $content.text();
+			var hasExternalEmbed = $content.find(
+				'.remix-app[data-hash], ' +
+				'script[src], ' +
+				'iframe[src], ' +
+				'embed[src], ' +
+				'object[data]'
+			).length > 0;
 
-			text = text.replace( /\t|\s/g, '' );
-			text = text.replace( /\r?\n|\r/g, '' );
+			text = text.replace( /\s/g, '' );
 
-			if ( ! text ) {
+			/*
+			 * A listing with no results should still be treated as empty,
+			 * even if its wrapper contains other technical elements.
+			 */
+			if ( $content.find( '.jet-listing-not-found' ).length ) {
 				$el.css( 'display', 'none' );
+
 				return true;
-			} else if ( $content.find( '.jet-listing-not-found' ).length ) {
+			}
+
+			/*
+			 * External embeds may not contain visible text before their
+			 * asynchronous scripts finish rendering the content.
+			 */
+			if ( ! text && ! hasExternalEmbed ) {
 				$el.css( 'display', 'none' );
+
 				return true;
 			}
 
